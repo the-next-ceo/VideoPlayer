@@ -17,7 +17,7 @@ class VideoPlayerWidget extends StatelessWidget {
       controller != null && controller!.value.isInitialized
           ? Container(alignment: Alignment.topCenter, child: buildVideo())
           : Container(
-              height: 200,
+              height: 300,
               child: Center(child: CircularProgressIndicator()),
             );
 

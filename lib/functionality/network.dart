@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+//import 'package:vid_player/resources/chewie_plyr_layout.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import '../resources/action_btn.dart';
@@ -15,32 +17,92 @@ class _NetworkPlayerWidgetState extends State<NetworkPlayerWidget> {
 
   ChewieController? _chewieController;
 
-  late VideoPlayerController videoPlayerController;
+  VideoPlayerController? videoPlayerController;
 
   @override
   void initState() {
+    // TODO: implement
+    // initState
     super.initState();
 
-    videoPlayerController = VideoPlayerController.file(file);
+    _chewieController = ChewieController(
+        videoPlayerController: VideoPlayerController.network(
+            'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
+        aspectRatio: 16 / 9,
+        autoInitialize: true,
+        autoPlay: true,
+        looping: true,
+        deviceOrientationsOnEnterFullScreen: [
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+          DeviceOrientation.portraitDown,
+          DeviceOrientation.portraitUp
+        ],
+        allowPlaybackSpeedChanging: true,
+        
+        errorBuilder: (context, errorMessage) {
+          return Center(
+              child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              errorMessage,
+              style: TextStyle(color: Colors.white),
+            ),
+          ));
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    resizeToAvoidBottomInset: false,
+    body: SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildPlayer()
+        ],
+      ),
+    ),
+  );
+
+  Chewie _buildPlayer() {
+    return Chewie(
+      controller: _chewieController!,
+    );
+  }
+  @override
+  void dispose() {
+    _chewieController?.videoPlayerController.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+}
+
+/*  @override
+  void initState() {
+    super.initState();
 
     _chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
-      aspectRatio: 16 / 9,
+      videoPlayerController: VideoPlayerController.network(
+          'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
       autoInitialize: true,
+      aspectRatio: 16/9,
       showControls: true,
+      looping: true,
+
     );
-    if (file.existsSync()) {
-      videoPlayerController = VideoPlayerController.file(file)
+    /* if (file.existsSync()) {
+      videoPlayerController = VideoPlayerController.network(
+          'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4')
         ..addListener(() => setState(() {}))
         ..setLooping(true)
-        ..initialize().then((_) => videoPlayerController.play());
+        ..initialize().then((_) => videoPlayerController!.play());
       setState(() {});
-    }
+    } */
   }
 
   @override
   void dispose() {
-    videoPlayerController.dispose();
+    _chewieController?.videoPlayerController.dispose();
     _chewieController?.dispose();
     super.dispose();
   }
@@ -50,9 +112,11 @@ class _NetworkPlayerWidgetState extends State<NetworkPlayerWidget> {
         body: Column(
           children: [Chewie(controller: _chewieController!)],
         ),
+        
       );
-
-  Widget buildAddButton() => Container(
+}
+ */
+/* Widget buildAddButton() => Container(
         padding: const EdgeInsets.all(32),
         child: FloatingActionButtonWidget(
           onPressed: () async {
@@ -63,14 +127,14 @@ class _NetworkPlayerWidgetState extends State<NetworkPlayerWidget> {
               ..addListener(() => setState(() {}))
               ..setLooping(true)
               ..initialize().then((_) {
-                videoPlayerController.play();
+                videoPlayerController!.play();
                 setState(() {});
               });
           },
         ),
-      );
+      ); */
 
-  Future<File> pickVideoFile() async {
+/* Future<File> pickVideoFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
 
     /* final result =
@@ -78,8 +142,7 @@ class _NetworkPlayerWidgetState extends State<NetworkPlayerWidget> {
     if (result == null) return throw Exception('no files');
     return File(result.files.single.path!);
   }
-}
-
+} */
 
 /* static var url = 'https://youtu.be/_WH6cbwZ5m8';
 

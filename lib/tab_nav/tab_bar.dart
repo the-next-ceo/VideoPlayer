@@ -30,7 +30,7 @@ class Tabs extends StatelessWidget {
             toolbarHeight: 30,
             bottom: TabBar(
               tabs: [
-               // Tab(icon: Icon(Icons.tv), text: 'Watch'),
+                Tab(icon: Icon(Icons.tv), text: 'Watch'),
                 Tab(icon: Icon(Icons.stream), text: 'Online Videos'),
                 //Tab(icon: Icon(Icons.browse_gallery), text: 'Annotated Pics'),
               ],
@@ -46,7 +46,7 @@ class Tabs extends StatelessWidget {
             titleSpacing: 20,
           ),
           body: TabBarView(children: [
-            //Watch(),
+            Watch(),
             NetworkPlayerWidget(),
           ]),
         ),

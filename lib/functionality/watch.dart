@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:vid_player/resources/video_player.dart';
+import 'package:vid_player/resources/video_plyr.dart';
 import 'package:video_player/video_player.dart';
 
 import '../resources/action_btn.dart';
@@ -44,6 +44,7 @@ class _WatchLocally extends State<Watch> {
         children: [
           VideoPlayerWidget(controller: controller),
           buildAddButton(),
+          
         ],
       ));
 
