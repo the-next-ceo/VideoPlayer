@@ -1,6 +1,8 @@
-// ignore_for_file: must_be_immutable, prefer_const_constructors
+// ignore_for_file: must_be_immutable, prefer_const_constructors, unnecessary_null_comparison, use_key_in_widget_constructors
 
 import 'dart:io';
+import 'dart:ui';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:chewie/chewie.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -131,12 +133,28 @@ class _VideoWidgetState extends State<VideoWidget> {
             _chewie = Chewie(
               controller: _chewieController,
             );
-            /*  _chewieController.addListener(() {
+            _chewieController.addListener(() {
               if (!_chewieController.isFullScreen) {
                 SystemChrome.setPreferredOrientations(
                     [DeviceOrientation.portraitUp]);
+                MaterialButton(
+                  onPressed: () {
+                    MakePaint();
+                  },
+                  color: Colors.blue[200],
+                  textColor: Colors.white,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(
+                      Icons.draw,
+                      size: 8,
+                    ),
+                  ),
+                  padding: EdgeInsets.all(16),
+                  shape: CircleBorder(),
+                );
               }
-            }); */
+            });
           },
         ),
       ]),
@@ -168,5 +186,161 @@ class _VideoWidgetState extends State<VideoWidget> {
           fontSize: 16.0);
     }
     return File(result!.files.single.path!);
+  }
+}
+
+class DrawingArea {
+  Offset? point;
+  Paint? areaPaint;
+
+  DrawingArea({this.point, this.areaPaint});
+}
+
+class MakePaint extends StatefulWidget {
+  @override
+  MakeCanvas createState() => MakeCanvas();
+}
+
+class MakeCanvas extends State<MakePaint> {
+  List<DrawingArea> points = [];
+  Color? selectedColor;
+  double? strokeWidth;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedColor = Colors.black;
+    strokeWidth = 2.0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
+
+    void selectColor() {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Color Chooser'),
+              content: SingleChildScrollView(
+                child: BlockPicker(
+                  pickerColor: selectedColor!,
+                  onColorChanged: (color) {
+                    setState(() {
+                      selectedColor = color;
+                    });
+                  },
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Close"))
+              ],
+            );
+          });
+    }
+
+    // TODO: implement build
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: width * 0.80,
+                    height: height * 0.80,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            blurRadius: 5.0,
+                            spreadRadius: 1.0,
+                          )
+                        ]),
+                    child: GestureDetector(
+                      onPanDown: (details) {
+                        setState(() {
+                          points.add(DrawingArea(
+                              point: details.localPosition,
+                              areaPaint: Paint()
+                                ..strokeCap = StrokeCap.round
+                                ..isAntiAlias = true
+                                ..color = selectedColor!
+                                ..strokeWidth = strokeWidth!));
+                        });
+                      },
+                      onPanUpdate: (details) {
+                        setState(() {
+                          points.add(DrawingArea(
+                              point: details.localPosition,
+                              areaPaint: Paint()
+                                ..strokeCap = StrokeCap.round
+                                ..isAntiAlias = true
+                                ..color = selectedColor!
+                                ..strokeWidth = strokeWidth!));
+                        });
+                      },
+                      onPanEnd: (details) {
+                        setState(() {
+                          points.add(DrawingArea(point: null, areaPaint: null));
+                        });
+                      },
+                      child: SizedBox.expand(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                          child: CustomPaint(
+                            painter: MyCustomPainter(points: points),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class MyCustomPainter extends CustomPainter {
+  List<DrawingArea>? points;
+
+  MyCustomPainter({@required this.points});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint background = Paint()..color = Colors.black26;
+    Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawRect(rect, background);
+    canvas.clipRect(rect);
+
+    for (int x = 0; x < points!.length - 1; x++) {
+      if (points![x] != null && points![x + 1] != null) {
+        canvas.drawLine(
+            points![x].point!, points![x + 1].point!, points![x].areaPaint!);
+      } else if (points![x] != null && points![x + 1] == null) {
+        canvas.drawPoints(
+            PointMode.points, [points![x].point!], points![x].areaPaint!);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(MyCustomPainter oldDelegate) {
+    return oldDelegate.points != points;
   }
 }
