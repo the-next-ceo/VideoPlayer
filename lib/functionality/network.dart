@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
@@ -21,17 +23,16 @@ class _NetworkPlayerWidgetState extends State<NetworkPlayerWidget> {
 
   @override
   void initState() {
-    // TODO: implement
-    // initState
     super.initState();
-
+    videoPlayerController!.initialize();
     _chewieController = ChewieController(
         videoPlayerController: VideoPlayerController.network(
             'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
-        aspectRatio: 16 / 9,
         autoInitialize: true,
-        autoPlay: true,
-        looping: true,
+        aspectRatio: 16 / 9,
+        allowFullScreen: true,
+        //autoPlay: true,
+        // looping: true,
         deviceOrientationsOnEnterFullScreen: [
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight,
@@ -39,7 +40,6 @@ class _NetworkPlayerWidgetState extends State<NetworkPlayerWidget> {
           DeviceOrientation.portraitUp
         ],
         allowPlaybackSpeedChanging: true,
-        
         errorBuilder: (context, errorMessage) {
           return Center(
               child: Padding(
@@ -54,21 +54,26 @@ class _NetworkPlayerWidgetState extends State<NetworkPlayerWidget> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    resizeToAvoidBottomInset: false,
-    body: SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildPlayer()
-        ],
-      ),
-    ),
-  );
+      resizeToAvoidBottomInset: false,
+      body: Material(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [_buildPlayer()],
+          ),
+        ),
+      ));
 
-  Chewie _buildPlayer() {
-    return Chewie(
-      controller: _chewieController!,
+  //@override
+  Widget _buildPlayer() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Chewie(
+        controller: _chewieController!,
+      ),
     );
   }
+
   @override
   void dispose() {
     _chewieController?.videoPlayerController.dispose();
