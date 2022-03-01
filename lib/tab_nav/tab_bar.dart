@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:vid_player/functionality/network.dart';
 import 'package:vid_player/functionality/watch.dart';
+import 'package:vid_player/functionality/test.dart';
 
 // ignore: use_key_in_widget_constructors
 class Tabs extends StatelessWidget {
@@ -47,7 +48,8 @@ class Tabs extends StatelessWidget {
           ),
           body: TabBarView(children: [
             Watch(),
-            NetworkPlayerWidget(),
+          //  NetworkPlayerWidget(),
+           VideoWidget()
           ]),
         ),
       ),

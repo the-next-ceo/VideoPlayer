@@ -47,6 +47,7 @@ class _VideoWidgetState extends State<VideoWidget> {
     _chewieController = ChewieController(
       videoPlayerController: _controller,
       autoPlay: false,
+      showOptions: false,
       looping: false,
       autoInitialize: true,
       allowFullScreen: true,
@@ -56,7 +57,7 @@ class _VideoWidgetState extends State<VideoWidget> {
         DeviceOrientation.portraitDown,
         DeviceOrientation.portraitUp
       ],
-      allowPlaybackSpeedChanging: true,
+      // allowPlaybackSpeedChanging: true,
     );
     _chewie = Chewie(
       controller: _chewieController,
@@ -66,13 +67,6 @@ class _VideoWidgetState extends State<VideoWidget> {
         SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _chewieController.dispose();
-    super.dispose();
   }
 
   @override
@@ -111,16 +105,7 @@ class _VideoWidgetState extends State<VideoWidget> {
           borderRadius: const BorderRadius.all(Radius.circular(10.0)),
           onPressed: () async {
             final file = await pickVideoFile();
-            if (file == null) {
-              Fluttertoast.showToast(
-                  msg: "Please select the valid file",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                  fontSize: 16.0);
-            }
+            if (file == null) return;
 
             _controller = VideoPlayerController.file(file);
             _controller.addListener(() {
@@ -130,7 +115,8 @@ class _VideoWidgetState extends State<VideoWidget> {
             _controller.initialize();
             _chewieController = ChewieController(
               videoPlayerController: _controller,
-              autoInitialize:  true,
+              showOptions: true,
+              autoInitialize: true,
               autoPlay: false,
               looping: true,
               allowFullScreen: true,
@@ -145,7 +131,7 @@ class _VideoWidgetState extends State<VideoWidget> {
             _chewie = Chewie(
               controller: _chewieController,
             );
-           /*  _chewieController.addListener(() {
+            /*  _chewieController.addListener(() {
               if (!_chewieController.isFullScreen) {
                 SystemChrome.setPreferredOrientations(
                     [DeviceOrientation.portraitUp]);
@@ -159,12 +145,28 @@ class _VideoWidgetState extends State<VideoWidget> {
     //return _chewie;
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _chewieController.dispose();
+    super.dispose();
+  }
+
   Future<File> pickVideoFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
 
     /* final result =
         (await FilePicker.platform.pickFiles(type: FileType.video)) as File; */
-    if (result == null) return throw Exception('no files');
-    return File(result.files.single.path!);
+    if (result == null) {
+      Fluttertoast.showToast(
+          msg: "Please select the valid file",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+    return File(result!.files.single.path!);
   }
 }
