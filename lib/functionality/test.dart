@@ -13,10 +13,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoWidget extends StatefulWidget {
-  //String videoURL;
-
-  // VideoWidget({required this.videoURL});
-
   @override
   _VideoWidgetState createState() => _VideoWidgetState();
 }
@@ -25,11 +21,8 @@ class _VideoWidgetState extends State<VideoWidget> {
   late VideoPlayerController _controller;
   late Chewie _chewie;
   late ChewieController _chewieController;
-  String videoURL =
-      'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4';
   File file = File('');
-
-  //_VideoWidgetState({required this.videoURL});
+  final MakeCanvas paintWidget = new MakeCanvas();
 
   @override
   void initState() {
@@ -139,7 +132,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                     [DeviceOrientation.portraitUp]);
                 MaterialButton(
                   onPressed: () {
-                    MakePaint();
+                    paintWidget.selectColor();
                   },
                   color: Colors.blue[200],
                   textColor: Colors.white,
@@ -206,6 +199,33 @@ class MakeCanvas extends State<MakePaint> {
   Color? selectedColor;
   double? strokeWidth;
 
+  void selectColor() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Color Chooser'),
+            content: SingleChildScrollView(
+              child: BlockPicker(
+                pickerColor: selectedColor!,
+                onColorChanged: (color) {
+                  setState(() {
+                    selectedColor = color;
+                  });
+                },
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Close"))
+            ],
+          );
+        });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -217,33 +237,6 @@ class MakeCanvas extends State<MakePaint> {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
-
-    void selectColor() {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Color Chooser'),
-              content: SingleChildScrollView(
-                child: BlockPicker(
-                  pickerColor: selectedColor!,
-                  onColorChanged: (color) {
-                    setState(() {
-                      selectedColor = color;
-                    });
-                  },
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Close"))
-              ],
-            );
-          });
-    }
 
     // TODO: implement build
     return Scaffold(
