@@ -23,6 +23,8 @@ class _VideoWidgetState extends State<VideoWidget> {
   late ChewieController _chewieController;
   File file = File('');
   final MakeCanvas paintWidget = new MakeCanvas();
+  OverlayEntry? entry;
+  Offset offset = Offset(20, 40);
 
   @override
   void initState() {
@@ -32,6 +34,9 @@ class _VideoWidgetState extends State<VideoWidget> {
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
 
     ); */
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) => showOverlay());
+
     _controller = VideoPlayerController.file(file);
 
     _controller.addListener(() {
@@ -57,11 +62,11 @@ class _VideoWidgetState extends State<VideoWidget> {
     _chewie = Chewie(
       controller: _chewieController,
     );
-    _chewieController.addListener(() {
+    /* _chewieController.addListener(() {
       if (!_chewieController.isFullScreen) {
         SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       }
-    });
+    }); */
   }
 
   @override
@@ -127,39 +132,104 @@ class _VideoWidgetState extends State<VideoWidget> {
               controller: _chewieController,
             );
             _chewieController.addListener(() {
-              if (!_chewieController.isFullScreen) {
-                SystemChrome.setPreferredOrientations(
-                    [DeviceOrientation.portraitUp]);
-                MaterialButton(
-                  onPressed: () {
-                    paintWidget.selectColor();
-                  },
-                  color: Colors.blue[200],
-                  textColor: Colors.white,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Icon(
-                      Icons.draw,
-                      size: 8,
-                    ),
-                  ),
-                  padding: EdgeInsets.all(16),
-                  shape: CircleBorder(),
-                );
+              if (_chewieController.isFullScreen) {
+                // MakePaint();
+                WidgetsBinding.instance!
+                    .addPostFrameCallback((_) => showOverlay());
+              } else {
+                hideOverlay();
               }
             });
           },
         ),
+        /* CupertinoButton(
+            child: Text('press'),
+            onPressed: () {
+              // showOverlay();
+              selectColor();
+            }) */
       ]),
     );
 
-    //return _chewie;
+    //return
+    // _chewie;
+  }
+
+  void selectColor() {
+   Color selectedColor = Colors.black;
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Color Chooser'),
+            content: SingleChildScrollView(
+              child: BlockPicker(
+                pickerColor: selectedColor,
+                onColorChanged: (color) {
+                  setState(() {
+                    color = selectedColor;
+                  });
+                },
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Close"))
+            ],
+          );
+        });
+  }
+
+  void showOverlay() {
+    entry = OverlayEntry(
+        builder: (context) => Positioned(
+              left: offset.dx,
+              top: offset.dy,
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  offset += details.delta;
+                  entry!.markNeedsBuild();
+                },
+                child: MaterialButton(
+                    onPressed: () async {
+                      selectColor();
+                    },
+                    color: Colors.blue[800],
+                    textColor: Colors.white,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.draw,
+                        size: 20,
+                      ),
+                    ),
+                    padding: EdgeInsets.all(16),
+                    shape: CircleBorder()
+                    /* ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: Icon(Icons.stop_circle_rounded),
+                  label: Text('Record')), */
+                    ),
+              ),
+            ));
+    final overlay = Overlay.of(context)!;
+    overlay.insert(entry!);
+  }
+
+  void hideOverlay() {
+    entry?.remove();
+    entry = null;
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _chewieController.dispose();
+    hideOverlay();
     super.dispose();
   }
 
@@ -199,46 +269,18 @@ class MakeCanvas extends State<MakePaint> {
   Color? selectedColor;
   double? strokeWidth;
 
-  void selectColor() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Color Chooser'),
-            content: SingleChildScrollView(
-              child: BlockPicker(
-                pickerColor: selectedColor!,
-                onColorChanged: (color) {
-                  setState(() {
-                    selectedColor = color;
-                  });
-                },
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("Close"))
-            ],
-          );
-        });
-  }
-
-  @override
+  /* @override
   void initState() {
     super.initState();
     selectedColor = Colors.black;
     strokeWidth = 2.0;
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    // TODO: implement build
     return Scaffold(
       body: Stack(
         children: <Widget>[
