@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:vid_player/functionality/network.dart';
+import 'package:vid_player/functionality/paint.dart';
 import 'package:vid_player/functionality/watch.dart';
 import 'package:vid_player/functionality/test.dart';
 
@@ -47,8 +48,8 @@ class Tabs extends StatelessWidget {
             titleSpacing: 20,
           ),
           body: TabBarView(children: [
-            Watch(),
-          //  NetworkPlayerWidget(),
+          // DrawingPage(),
+          Watch(),
            VideoWidget()
           ]),
         ),

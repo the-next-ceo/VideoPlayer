@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vid_player/functionality/paint.dart';
+import 'package:vid_player/functionality/test.dart';
+import 'package:vid_player/functionality/video.dart';
 import 'package:vid_player/functionality/watch.dart';
 import 'package:vid_player/tab_nav/tab_bar.dart';
 
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Tabs(),
+      home: DrawingPage(),
     );
   }
 }

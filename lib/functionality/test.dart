@@ -9,8 +9,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-//import 'package:vid_player/resources/chewie_plyr_layout.dart';
 import 'package:video_player/video_player.dart';
+import 'package:vid_player/functionality/paint.dart';
 
 class VideoWidget extends StatefulWidget {
   @override
@@ -18,49 +18,42 @@ class VideoWidget extends StatefulWidget {
 }
 
 class _VideoWidgetState extends State<VideoWidget> {
-  late VideoPlayerController _controller;
-  late Chewie _chewie;
-  late ChewieController _chewieController;
+  VideoPlayerController? _controller;
+  Chewie? _chewie;
+  ChewieController? _chewieController;
   File file = File('');
-  final MakeCanvas paintWidget = new MakeCanvas();
+  final DrawingPageState lay = DrawingPageState();
   OverlayEntry? entry;
   Offset offset = Offset(20, 40);
 
   @override
   void initState() {
     super.initState();
+    MakePaint();
     /* _controller = VideoPlayerController.network(
       videoURL,
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
 
     ); */
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) => showOverlay());
+    // WidgetsBinding.instance!.addPostFrameCallback((_) => showOverlay());
 
     _controller = VideoPlayerController.file(file);
 
-    _controller.addListener(() {
+    _controller?.addListener(() {
       setState(() {});
     });
-    _controller.setLooping(true);
-    _controller.initialize();
+    _controller?.setLooping(true);
+    _controller?.initialize();
     _chewieController = ChewieController(
-      videoPlayerController: _controller,
+      videoPlayerController: _controller!,
       autoPlay: false,
       showOptions: false,
       looping: false,
       autoInitialize: true,
-      allowFullScreen: true,
-      deviceOrientationsOnEnterFullScreen: [
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-        DeviceOrientation.portraitDown,
-        DeviceOrientation.portraitUp
-      ],
-      // allowPlaybackSpeedChanging: true,
     );
     _chewie = Chewie(
-      controller: _chewieController,
+      controller: _chewieController!,
     );
     /* _chewieController.addListener(() {
       if (!_chewieController.isFullScreen) {
@@ -72,83 +65,76 @@ class _VideoWidgetState extends State<VideoWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(children: <Widget>[
-        Container(padding: const EdgeInsets.only(top: 10)),
-        /* Padding(padding: EdgeInsets.only(top: 10)),
-          Text("Video",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)), */
-        Center(
-          child: Container(
-            height: 400,
-            padding: const EdgeInsets.all(20),
-            child: _controller.value.isInitialized
-                ? AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: Chewie(
-                      controller: _chewieController,
-                    ),
-                  )
-                : Center(
-                    child: SizedBox(
-                        height: 80.0,
-                        width: 80.0,
-                        child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation(Colors.blue),
-                            strokeWidth: 1.0))),
-          ),
-        ),
-        CupertinoButton(
-          child: Text('Browse',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          color: Colors.indigo[700],
-          padding: const EdgeInsets.all(18.0),
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-          onPressed: () async {
-            final file = await pickVideoFile();
-            if (file == null) return;
+      child: Stack(
+        children: <Widget>[
+          // MakePaint(),
+          Column(children: <Widget>[
+            Container(padding: const EdgeInsets.only(top: 10)),
+            /* Padding(padding: EdgeInsets.only(top: 10)),
+              Text("Video",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)), */
+            Center(
+              child: Container(
+                height: 400,
+                padding: const EdgeInsets.all(20),
+                child: _controller!.value.isInitialized
+                    ? AspectRatio(
+                        aspectRatio: _controller!.value.aspectRatio,
+                        child: Chewie(
+                          controller: _chewieController!,
+                        ),
+                      )
+                    : Center(
+                        child: SizedBox(
+                            height: 80.0,
+                            width: 80.0,
+                            child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation(Colors.blue),
+                                strokeWidth: 1.0))),
+              ),
+            ),
+            CupertinoButton(
+              child: Text('Browse',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              color: Colors.indigo[700],
+              padding: const EdgeInsets.all(18.0),
+              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+              onPressed: () async {
+                final file = await pickVideoFile();
+                if (file == null) return;
 
-            _controller = VideoPlayerController.file(file);
-            _controller.addListener(() {
-              setState(() {});
-            });
-            _controller.setLooping(true);
-            _controller.initialize();
-            _chewieController = ChewieController(
-              videoPlayerController: _controller,
-              showOptions: true,
-              autoInitialize: true,
-              autoPlay: false,
-              looping: true,
-              allowFullScreen: true,
-              deviceOrientationsOnEnterFullScreen: [
-                DeviceOrientation.landscapeLeft,
-                DeviceOrientation.landscapeRight,
-                DeviceOrientation.portraitDown,
-                DeviceOrientation.portraitUp
-              ],
-              allowPlaybackSpeedChanging: true,
-            );
-            _chewie = Chewie(
-              controller: _chewieController,
-            );
-            _chewieController.addListener(() {
-              if (_chewieController.isFullScreen) {
-                // MakePaint();
-                WidgetsBinding.instance!
-                    .addPostFrameCallback((_) => showOverlay());
-              } else {
-                hideOverlay();
-              }
-            });
-          },
-        ),
-        /* CupertinoButton(
-            child: Text('press'),
-            onPressed: () {
-              // showOverlay();
-              selectColor();
-            }) */
-      ]),
+                _controller = VideoPlayerController.file(file);
+                _controller?.addListener(() {
+                  setState(() {});
+                });
+                _controller!.setLooping(true);
+                _controller!.initialize();
+                _chewieController = ChewieController(
+                    videoPlayerController: _controller!,
+                    showOptions: true,
+                    autoInitialize: true,
+                    autoPlay: false,
+                    looping: true,
+                    allowFullScreen: true,
+                    deviceOrientationsOnEnterFullScreen: [
+                      DeviceOrientation.landscapeLeft,
+                      DeviceOrientation.landscapeRight,
+                      DeviceOrientation.portraitDown,
+                      DeviceOrientation.portraitUp
+                    ],
+                    allowPlaybackSpeedChanging: true,
+                    overlay: Positioned(
+                        top: 40.0,
+                        right: 10.0,
+                        child: lay.build(context)));
+                _chewie = Chewie(
+                  controller: _chewieController!,
+                );
+              },
+            ),
+          ]),
+        ],
+      ),
     );
 
     //return
@@ -156,7 +142,7 @@ class _VideoWidgetState extends State<VideoWidget> {
   }
 
   void selectColor() {
-   Color selectedColor = Colors.black;
+    Color selectedColor = Colors.black;
 
     showDialog(
         context: context,
@@ -168,7 +154,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                 pickerColor: selectedColor,
                 onColorChanged: (color) {
                   setState(() {
-                    color = selectedColor;
+                    selectedColor = color;
                   });
                 },
               ),
@@ -227,8 +213,8 @@ class _VideoWidgetState extends State<VideoWidget> {
 
   @override
   void dispose() {
-    _controller.dispose();
-    _chewieController.dispose();
+    _controller?.dispose();
+    _chewieController?.dispose();
     hideOverlay();
     super.dispose();
   }
@@ -298,7 +284,7 @@ class MakeCanvas extends State<MakePaint> {
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.4),
+                            color: Colors.black.withOpacity(0.1),
                             blurRadius: 5.0,
                             spreadRadius: 1.0,
                           )
@@ -358,7 +344,7 @@ class MyCustomPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint background = Paint()..color = Colors.black26;
+    Paint background = Paint()..color = Colors.black12;
     Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
     canvas.drawRect(rect, background);
     canvas.clipRect(rect);
