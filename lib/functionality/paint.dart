@@ -297,11 +297,11 @@ class DrawingPageState extends State<DrawingPage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
+          buildVideo(),
           buildAllPaths(context),
           buildCurrentPath(context),
           buildColorToolbar(),
           buildStrokeToolbar(),
-          buildVideo(),
         ],
       ),
     );
@@ -341,10 +341,13 @@ class DrawingPageState extends State<DrawingPage> {
                     : _controller!.play();
               });
             },
-            child: Icon(
+            child: 
+            Center(child: 
+            Icon(
               _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
             ),
           ),
+          )
         ));
   }
 
@@ -553,6 +556,7 @@ class Sketcher extends CustomPainter {
           paint.color = lines[i].color;
           paint.strokeWidth = lines[i].width;
           canvas.drawLine(lines[i].path[j], lines[i].path[j + 1], paint);
+          
         }
       }
     }
